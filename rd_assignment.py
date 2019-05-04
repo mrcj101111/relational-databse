@@ -18,8 +18,8 @@ class PostgresDb:
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument('-username', action='store', dest='username', help='database username')
-parser.add_argument('-password', action='store', dest='password', help='database password')
+parser.add_argument('-username', action='store', dest='username', help='database username', required=True)
+parser.add_argument('-password', action='store', dest='password', help='database password', required=True)
 parser.add_argument('-db_name', action='store', dest='db_name', help='database name')
 args = parser.parse_args()
 initialize = PostgresDb(username=args.username, password=args.password, db_name=args.db_name)
