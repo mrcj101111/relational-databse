@@ -2,24 +2,27 @@ import psycopg2
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 import argparse
 
+
 class PostgresDb:
-    def __init__(self, username, password, db_name):
-        connection = psycopg2.connect(dbname='postgres', user=username, host='localhost', password=password)
+
+    def existing_database(self):
+        parser = argparse.ArgumentParser()
+        parser.add_argument('-db_name', action='store', dest='db_name', help='Database name', required=True)
+        parser.add_argument('-username', action='store', dest='username', help='username', required=True)
+        parser.add_argument('-password', action='store', dest='password', help='password', required=True)
+        args = parser.parse_args()
+        connection = psycopg2.connect(dbname=args.db_name, user=args.username,
+                                      host='localhost', password=args.password)
         connection.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
+        return connection
+        # self.cursor.execute('CREATE DATABASE %s ;' % new_database)
+
+    def read_sql_file(self, connection):
+        sql_script = open('products_table.sql', 'r').read().replace('\n', '').split(';')[:-1]
         cursor = connection.cursor()
-        cursor.execute('CREATE DATABASE rd_assignment')
-
-    def read_sql_file(self):
-        sql_file = open('products_table.sql', 'r').read()
-        print(sql_file)
-
-        for command in sql_file:
-            self.cursor.execute(command)
+        for line in sql_script:
+            cursor.execute(line)
 
 
-parser = argparse.ArgumentParser()
-parser.add_argument('-username', action='store', dest='username', help='database username', required=True)
-parser.add_argument('-password', action='store', dest='password', help='database password', required=True)
-parser.add_argument('-db_name', action='store', dest='db_name', help='database name')
-args = parser.parse_args()
-initialize = PostgresDb(username=args.username, password=args.password, db_name=args.db_name)
+initialize = PostgresDb().existing_database()
+execute_sql_file = PostgresDb().read_sql_file(connection=initialize)
