@@ -1,6 +1,7 @@
 import psycopg2
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 import argparse
+import csv
 
 
 class PostgresDb:
@@ -16,6 +17,9 @@ class PostgresDb:
         connection.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
         cursor = connection.cursor()
         cursor.execute('CREATE DATABASE %s ;' % args.db_name)
+
+
+class SqlQueries:
 
     def read_sql_file(self, connection):
         sql_script = open('products_table.sql', 'r').read().replace('\n', '').split(';')[:-1]
@@ -39,6 +43,22 @@ class PostgresDb:
                        % sql_file)
         connection.commit()
 
+    def stdout_print_out(self):
+        connection = psycopg2.connect(dbname=args.db_name, user=args.username,
+                                      host='localhost', password=args.password)
+        cursor = connection.cursor()
+
+        # cursor.execute("SELECT * FROM products")
+        # rows = cursor.fetchall()
+        # with open('output.csv', 'w') as fp:
+        #     csv_writer = csv.writer(fp)
+        #     csv_writer.writerows(rows)
+
+        sql = "COPY (SELECT * FROM products) TO STDOUT WITH CSV HEADER DELIMITER ','"
+        with open('output.csv', 'w') as file:
+            cursor.copy_expert(sql, file)
+
+
 parser = argparse.ArgumentParser()
 parser.add_argument('-username', action='store', dest='username', help='username', required=True)
 parser.add_argument('-password', action='store', dest='password', help='password', required=True)
@@ -48,4 +68,5 @@ args = parser.parse_args()
 # initialize = PostgresDb().connect_to_db()
 # execute_sql_file = PostgresDb().read_sql_file(connection=initialize)
 #add_column = PostgresDb().add_column()
-add_entries = PostgresDb().write_to_tabel()
+#add_entries = PostgresDb().write_to_tabel()
+print_out = SqlQueries().stdout_print_out()
