@@ -5,17 +5,17 @@ import argparse
 
 class PostgresDb:
 
-    def existing_database(self):
-        parser = argparse.ArgumentParser()
-        parser.add_argument('-db_name', action='store', dest='db_name', help='Database name', required=True)
-        parser.add_argument('-username', action='store', dest='username', help='username', required=True)
-        parser.add_argument('-password', action='store', dest='password', help='password', required=True)
-        args = parser.parse_args()
+    def connect_to_db(self):
         connection = psycopg2.connect(dbname=args.db_name, user=args.username,
                                       host='localhost', password=args.password)
         connection.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
         return connection
-        # self.cursor.execute('CREATE DATABASE %s ;' % new_database)
+
+    def new_database(self):
+        connection = psycopg2.connect(dbname='postgres', user=args.username, host='localhost', password=args.password)
+        connection.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
+        cursor = connection.cursor()
+        cursor.execute('CREATE DATABASE %s ;' % args.db_name)
 
     def read_sql_file(self, connection):
         sql_script = open('products_table.sql', 'r').read().replace('\n', '').split(';')[:-1]
@@ -23,6 +23,29 @@ class PostgresDb:
         for line in sql_script:
             cursor.execute(line)
 
+    def add_column(self):
+        connection = psycopg2.connect(dbname=args.db_name, user=args.username,
+                                      host='localhost', password=args.password)
+        cursor = connection.cursor()
+        cursor.execute("ALTER TABLE products ADD is_active boolean null;")
+        connection.commit()
 
-initialize = PostgresDb().existing_database()
-execute_sql_file = PostgresDb().read_sql_file(connection=initialize)
+    def write_to_tabel(self):
+        connection = psycopg2.connect(dbname=args.db_name, user=args.username,
+                                      host='localhost', password=args.password)
+        cursor = connection.cursor()
+        sql_file = open('db_entries.sql', 'r').read()
+        cursor.execute("INSERT INTO products (id, created, modified, description, amount, is_active) VALUES %s ;"
+                       % sql_file)
+        connection.commit()
+
+parser = argparse.ArgumentParser()
+parser.add_argument('-username', action='store', dest='username', help='username', required=True)
+parser.add_argument('-password', action='store', dest='password', help='password', required=True)
+parser.add_argument('-db_name', action='store', dest='db_name', help='database name', required=True)
+args = parser.parse_args()
+# new_db = PostgresDb().new_database()
+# initialize = PostgresDb().connect_to_db()
+# execute_sql_file = PostgresDb().read_sql_file(connection=initialize)
+#add_column = PostgresDb().add_column()
+add_entries = PostgresDb().write_to_tabel()
