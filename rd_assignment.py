@@ -47,15 +47,16 @@ class SqlQueries:
         connection = psycopg2.connect(dbname=args.db_name, user=args.username,
                                       host='localhost', password=args.password)
         cursor = connection.cursor()
-
-        # cursor.execute("SELECT * FROM products")
-        # rows = cursor.fetchall()
-        # with open('output.csv', 'w') as fp:
-        #     csv_writer = csv.writer(fp)
-        #     csv_writer.writerows(rows)
-
         sql = "COPY (SELECT * FROM products) TO STDOUT WITH CSV HEADER DELIMITER ','"
-        with open('output.csv', 'w') as file:
+        with open('stdout.csv', 'w') as file:
+            cursor.copy_expert(sql, file)
+
+    def write_highest_amount(self):
+        connection = psycopg2.connect(dbname=args.db_name, user=args.username,
+                                      host='localhost', password=args.password)
+        cursor = connection.cursor()
+        sql = "COPY (SELECT * FROM products ORDER BY amount DESC) TO STDOUT WITH CSV HEADER DELIMITER ','"
+        with open('amount_acs.csv', 'w') as file:
             cursor.copy_expert(sql, file)
 
 
@@ -64,9 +65,10 @@ parser.add_argument('-username', action='store', dest='username', help='username
 parser.add_argument('-password', action='store', dest='password', help='password', required=True)
 parser.add_argument('-db_name', action='store', dest='db_name', help='database name', required=True)
 args = parser.parse_args()
-# new_db = PostgresDb().new_database()
-# initialize = PostgresDb().connect_to_db()
-# execute_sql_file = PostgresDb().read_sql_file(connection=initialize)
-#add_column = PostgresDb().add_column()
-#add_entries = PostgresDb().write_to_tabel()
-print_out = SqlQueries().stdout_print_out()
+#new_db = PostgresDb().new_database()
+#initialize = PostgresDb().connect_to_db()
+#execute_sql_file = SqlQueries().read_sql_file(connection=initialize)
+#add_column = SqlQueries().add_column()
+#add_entries = SqlQueries().write_to_tabel()
+#print_out = SqlQueries().stdout_print_out()
+highest_amount = SqlQueries().write_highest_amount()
