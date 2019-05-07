@@ -1,34 +1,40 @@
 import psycopg2
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 
-
+# Class is for db connection
 class PostgresDb:
 
+    # connect to an existing db
     def connect_to_db(self, username, password, db_name):
         connection = psycopg2.connect(dbname=db_name, user=username,
                                       host='localhost', password=password)
         connection.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
         return connection
 
+    # connect to a default db in order to create a new db
     def create_db(self, username, password, db_name):
         connection = psycopg2.connect(dbname='postgres', user=username, host='localhost', password=password)
         connection.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
         cursor = connection.cursor()
         cursor.execute('CREATE DATABASE %s ;' % db_name)
 
+# Class for all sql queries to be performed
 class SqlQueries:
 
+    # Read sql file with query to add a table to db
     def read_sql_file(self, connection, sql_read_file_name):
         sql_script = open(sql_read_file_name, 'r').read().replace('\n', '').split(';')[:-1]
         cursor = connection.cursor()
         for line in sql_script:
             cursor.execute(line)
 
+    # Add an additional column called "is_active" to existing table
     def add_column(self, connection):
         cursor = connection.cursor()
         cursor.execute("ALTER TABLE products ADD is_active boolean null;")
         connection.commit()
 
+    # Add a list of entries to the db table
     def write_to_tabel(self, connection, sql_fields_input):
         cursor = connection.cursor()
         sql_file = open(sql_fields_input, 'r').read()
@@ -36,18 +42,21 @@ class SqlQueries:
                        % sql_file)
         connection.commit()
 
+    # Create a printout of table
     def stdout_print_out(self, connection, stdoutName):
         cursor = connection.cursor()
         sql = "COPY (SELECT * FROM products) TO STDOUT WITH CSV HEADER DELIMITER ','"
         with open(stdoutName, 'w') as file:
             cursor.copy_expert(sql, file)
 
+    # create a printout of table, arranged by highest number
     def write_highest_amount(self, connection, highest_amount_output):
         cursor = connection.cursor()
         sql = "COPY (SELECT * FROM products ORDER BY amount DESC) TO STDOUT WITH CSV HEADER DELIMITER ','"
         with open(highest_amount_output, 'w') as file:
             cursor.copy_expert(sql, file)
 
+    # Create a printout of all values that is active with an amount of >10
     def active_and_above_10(self, connection, active_and_above_10_output):
         cursor = connection.cursor()
         sql = "COPY (SELECT * FROM products WHERE amount > 10 AND is_active = TRUE)" \
@@ -55,6 +64,7 @@ class SqlQueries:
         with open(active_and_above_10_output, 'w') as file:
             cursor.copy_expert(sql, file)
 
+    # Create a printout of all inactive entries
     def inactive(self, connection, inactive_output):
         cursor = connection.cursor()
         sql = "COPY (SELECT description, amount, is_active FROM products WHERE is_active = FALSE)" \
@@ -63,6 +73,7 @@ class SqlQueries:
             cursor.copy_expert(sql, file)
 
 
+# Queries to execute all the sql functions
 class AddDatabase:
 
     def add_new_db(self):
@@ -99,6 +110,6 @@ class AddDatabase:
         SqlQueries().inactive(initialize, inactive_output)
         print('Your database is all set up and your necessary files are printed!')
 
-
+# Initialize query functions
 if __name__ == '__main__':
     AddDatabase().add_new_db()
