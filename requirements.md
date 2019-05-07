@@ -1,3 +1,3 @@
 #Additional Python libraries
 
-####  -MySQLdb
+####  -psycopg2
