@@ -5,12 +5,12 @@ import random
 import time
 
 # Class to connect to db and alter the table.
-class PostgresDb:
+class AlterTableAndPrintFiles:
     connection = psycopg2.connect(dbname='rd_assignment', user='', host='localhost', password='')
     connection.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
     cursor = connection.cursor()
 
-    # Read sql file with query to add a table to db and and column
+    # Read sql file with query to add a table to db and add column
     def read_sql_file(self, sql_read_file_name):
         sql_script = open(sql_read_file_name, 'r').read().replace('\n', '').split(';')[:-1]
         cursor = self.cursor
@@ -67,6 +67,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("-input", action='store', dest="input", help="input filename", required=True)
     args = parser.parse_args()
-    PostgresDb().read_sql_file(sql_read_file_name=args.input)
-    PostgresDb().run_sql_queries()
+    AlterTableAndPrintFiles().read_sql_file(sql_read_file_name=args.input)
+    AlterTableAndPrintFiles().run_sql_queries()
     print('Your queries was successful!')
