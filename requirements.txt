@@ -1,6 +1,2 @@
-Additional Python libraries
-
 psycopg2
 argparse
-ISOLATION_LEVEL_AUTOCOMMIT
-randomtime
