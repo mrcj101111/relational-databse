@@ -7,6 +7,8 @@ local machine for development and
 testing purposes. See deployment for notes on how to deploy the project on a
 live system.
 
+#### NOTE: Assumption is made that postgres db exists.
+
 ### Installation:
 - Visit the python website and download version 3.7.3 for your preferred
 operating system.

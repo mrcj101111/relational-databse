@@ -1,7 +1,7 @@
 import psycopg2
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 
-# Class is for db connection
+# Class to connect to db and alter the table.
 class PostgresDb:
 
     # connect to an existing db
