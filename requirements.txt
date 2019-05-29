@@ -1,0 +1,4 @@
+Additional Python libraries
+
+psycopg2
+argparse
