@@ -14,7 +14,7 @@ https://www.python.org/downloads/
 
 - Run the installer and follow the steps.
 
-#### NOTE: Assumption is made that a db named rd_assignment exists in Postres.
+#### NOTE: Assumption is made that a db named rd_assignment exists in Postgres.
 
 ### Running script:
 - Once you've installed Python, clone this repository to your local machine.
